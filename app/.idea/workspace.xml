@@ -5,12 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5234143e-27d6-45eb-a121-88ca1f5ee68c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/app/enums/MapVariant.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/app/services/ConfigurationReaderService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/app/enums/variants/AnimalBehaveVariant.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/app/enums/variants/MutationVariant.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/app/exceptions/InvalidConfigurationFileException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/Configuration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/app/Configuration.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/HelloApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/app/HelloApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/enums/MapVariant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/app/enums/variants/MapVariant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/enums/PlantGrowVariant.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/app/enums/variants/PlantGrowVariant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/app/services/ConfigurationReaderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/app/services/ConfigurationReaderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../evolution-simulator/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../evolution-simulator/.idea/gradle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../evolution-simulator/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../evolution-simulator/.idea/vcs.xml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,8 +27,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Enum" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -42,7 +49,8 @@
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "WebServerToolWindowFactoryState": "false"
+    "WebServerToolWindowFactoryState": "false",
+    "nodejs_package_manager_path": "npm"
   }
 }]]></component>
   <component name="RunManager">
@@ -73,7 +81,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1670959221485</updated>
-      <workItem from="1670959222808" duration="610000" />
+      <workItem from="1670959222808" duration="5197000" />
     </task>
     <servers />
   </component>
