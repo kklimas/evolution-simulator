@@ -1,0 +1,15 @@
+mapWidth=10
+mapHeight=10
+startPlantsNumber=10
+plantEnergy=10
+newPlantsEveryDay=10
+animalsStartNumber=10
+startEnergy=10
+energyNeedToReproduce=10
+energyWastedDuringReproduction=10
+minimalMutationNumber=10
+maximalMutationNumber=10
+genomeLength=10
+mapVariant=0
+plantGrowVariant=1
+mutationVariant=1

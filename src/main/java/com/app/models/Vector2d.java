@@ -3,11 +3,26 @@ package com.app.models;
 import java.util.Objects;
 
 public class Vector2d {
-    public final int x;
-    public final int y;
+    private int x;
+    private int y;
 
     public Vector2d(int x, int y) {
         this.x = x;
+        this.y = y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
         this.y = y;
     }
 
@@ -44,6 +59,7 @@ public class Vector2d {
     public Vector2d opposite() {
         return new Vector2d(-x, -y);
     }
+
 
     @Override
     public String toString() {

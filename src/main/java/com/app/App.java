@@ -16,8 +16,7 @@ import javafx.stage.Stage;
 import java.io.File;
 
 import static com.app.configurations.DefaultConfiguration.*;
-import static com.app.services.ConfigurationReaderService.getConfigurationFromFile;
-import static com.app.services.ConfigurationReaderService.getDefaultConfiguration;
+import static com.app.services.ConfigurationReaderService.*;
 
 public class App extends Application {
 

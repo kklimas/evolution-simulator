@@ -74,8 +74,7 @@ public class ConfigurationReaderService {
 
             while (line != null) {
                 var split = line.split("=");
-                if (split.length != 2) throw new InvalidConfigurationFileException(file.getName());
-                if (!pattern.matcher(split[1]).matches()) throw new InvalidConfigurationFileException(file.getName());
+                if (split.length != 2 || !pattern.matcher(split[1]).matches()) throw new InvalidConfigurationFileException(file.getName());
 
                 properties.put(split[0], Integer.parseInt(split[1]));
 
