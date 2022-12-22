@@ -7,12 +7,13 @@ import com.app.enums.variants.PlantGrowVariant;
 public class DefaultConfiguration {
     public static final String TITLE = "Evolution simulation";
 
+    public static final int DELAY = 100;
     public static final int INIT_WINDOW_WIDTH = 800;
     public static final int INIT_WINDOW_HEIGHT = 600;
     public static final int WINDOW_WIDTH = 1500;
     public static final int WINDOW_HEIGHT = 1000;
-    public static final int WINDOW_PADDING = 50;
-    public static final int INFO_HEIGHT = 400;
+    public static final int CHARTS_HEIGHT = 200;
+    public static final int INFO_HEIGHT = 300;
 
     // default properties if no provided by user
     public static final int D_MAP_WIDTH = 50;

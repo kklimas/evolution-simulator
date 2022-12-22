@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EntitiesComparatorTest {
 
-    private IWorldMap worldMap;
+    private WorldMap worldMap;
     private TreeSet<IMapEntity> entities;
     private final Vector2d position = new Vector2d(0, 0);
     private final CustomConfiguration configuration = getDefaultConfiguration();

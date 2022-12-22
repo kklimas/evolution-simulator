@@ -1,5 +1,7 @@
 package com.app;
+
 import com.app.configurations.CustomConfiguration;
+import com.app.dtos.DrawDTO;
 import com.app.models.*;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
@@ -7,8 +9,10 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.util.*;
@@ -18,24 +22,23 @@ import static com.app.configurations.DefaultConfiguration.*;
 public class Simulation implements Runnable {
 
     private final CustomConfiguration configuration;
-    private final IWorldMap worldMap;
-    private HBox layout;
+    private final WorldMap worldMap;
+    private GridPane layout;
+    private HBox map;
+    private VBox info;
+    private HBox buttons;
+    private Button runBtn;
 
-    private final int tileSize;
+    private int tileSize;
 
     public Simulation(CustomConfiguration configuration) {
         this.configuration = configuration;
         this.worldMap = new WorldMap(configuration);
-        this.tileSize = (WINDOW_HEIGHT - INFO_HEIGHT) / configuration.mapHeight();
-
-        var engine = new Engine(this, configuration, worldMap);
-        var engineThread = new Thread(engine);
-        engineThread.start();
     }
 
     @Override
     public void run() {
-        layout = new HBox();
+        layout = new GridPane();
         layout.setAlignment(Pos.TOP_CENTER);
         layout.setPadding(new Insets(25));
         Scene scene = new Scene(layout, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -44,44 +47,115 @@ public class Simulation implements Runnable {
         stage.setTitle("Simulation");
         stage.show();
 
-        draw();
+        runBtn = new Button("Start / Stop Simulation");
+        var engine = new Engine(this, configuration, worldMap, stage, runBtn);
+        var engineThread = new Thread(engine);
+        engineThread.start();
+
+        initWindow();
     }
 
-    public void draw() {
+    private void initWindow() {
+        map = new HBox();
+        map.setAlignment(Pos.CENTER);
+
+        info = new VBox();
+        info.setAlignment(Pos.TOP_CENTER);
+        info.setSpacing(24);
+
+        buttons = new HBox();
+        buttons.getChildren().add(runBtn);
+
+        var col1 = new ColumnConstraints();
+        col1.setPrefWidth(WINDOW_WIDTH - INFO_HEIGHT);
+        var col2 = new ColumnConstraints();
+        col2.setPrefWidth(INFO_HEIGHT);
+        layout.getColumnConstraints().addAll(col1, col2);
+
+        var row1 = new RowConstraints();
+        row1.setPrefHeight(WINDOW_HEIGHT - CHARTS_HEIGHT);
+        var row2 = new RowConstraints();
+        row2.setPrefHeight(CHARTS_HEIGHT);
+        layout.getRowConstraints().addAll(row1, row2);
+        layout.setGridLinesVisible(true);
+        layout.add(map, 0, 0);
+        layout.add(new HBox(), 0, 1);
+        layout.add(info, 1, 0);
+        layout.add(buttons, 1, 1);
+
+        var w = (WINDOW_WIDTH - INFO_HEIGHT) / configuration.mapWidth();
+        var h = (WINDOW_HEIGHT - CHARTS_HEIGHT) / configuration.mapHeight();
+        tileSize = Math.min(w, h);
+    }
+
+    public void draw(DrawDTO drawDTO) {
         Platform.runLater(() -> {
-            layout.getChildren().clear();
-
-            var grid = new GridPane();
-            var leftBottom = new Vector2d(0, 0);
-            var topRight = new Vector2d(configuration.mapWidth(), configuration.mapHeight());
-
-            var rows = topRight.getY() - leftBottom.getY() + 2;
-            var cols = topRight.getX() - leftBottom.getX() + 2;
-            var rowConstr = new RowConstraints(tileSize);
-            rowConstr.setValignment(VPos.CENTER);
-            var colConstr = new ColumnConstraints(tileSize);
-            colConstr.setHalignment(HPos.CENTER);
-            grid.setGridLinesVisible(true);
-            for (var i = 0; i < rows; i++) {
-                grid.getRowConstraints().add(rowConstr);
-            }
-            for (var i = 0; i < cols; i++) {
-                grid.getColumnConstraints().add(colConstr);
-            }
-
-            // draw objects
-            worldMap.getTakenPlaces().forEach(vector2d -> {
-                var entity = worldMap.objectsAt(vector2d).first();
-                grid.add(entity.getShape(), entity.getPosition().getX(), entity.getPosition().getY());
-            });
-
-            layout.getChildren().add(grid);
-
-            // vbox for map info / graphs stopping starting etc.
-            var info = new VBox();
-            info.getChildren().add(new Label("abv"));
-            layout.getChildren().add(info);
+            refreshMap(drawDTO.entitiesToDraw());
+            refreshInfo(drawDTO);
+            refreshCharts();
         });
+    }
+
+    private void refreshMap(List<IMapEntity> entities) {
+        map.getChildren().clear();
+        var grid = new GridPane();
+
+        var rowConstr = new RowConstraints(tileSize);
+        rowConstr.setValignment(VPos.CENTER);
+        var colConstr = new ColumnConstraints(tileSize);
+        colConstr.setHalignment(HPos.CENTER);
+        grid.setGridLinesVisible(true);
+        for (var i = 0; i < configuration.mapHeight(); i++) {
+            grid.getRowConstraints().add(rowConstr);
+        }
+        for (var i = 0; i < configuration.mapWidth(); i++) {
+            grid.getColumnConstraints().add(colConstr);
+        }
+
+
+        // draw objects
+        entities.forEach(entity ->
+                grid.add(entity.getShape(), entity.getPosition().getX(), entity.getPosition().getY())
+        );
+        grid.getChildren().forEach(item -> item.setOnMouseClicked(System.out::println));
+
+        map.getChildren().add(grid);
+    }
+
+    private void refreshInfo(DrawDTO drawDTO) {
+        info.getChildren().clear();
+
+        var currentDay = "Current day:%n %d".formatted(drawDTO.currentDay());
+        var animalsInfo = "Current animals number:%n %d".formatted(drawDTO.animalsNumber());
+        var averageEnergy = "Average animal energy:%n %d".formatted(drawDTO.averageEnergy());
+        var plantsInfo = "Current plants number:%n %d".formatted(drawDTO.plantsNumber());
+        var freePlaces = "Current free places:%n %d".formatted(drawDTO.freePlaces());
+        var deadAnimals = "Dead animals number:%n %d".formatted(drawDTO.deadAnimals());
+        var mostFamousGenotype = "Most famous genotype:%n %s".formatted(drawDTO.dominantGenotype());
+
+        var messages = List.of(
+                currentDay,
+                animalsInfo,
+                averageEnergy,
+                plantsInfo,
+                freePlaces,
+                deadAnimals,
+                mostFamousGenotype
+        );
+        info.getChildren().addAll(getInfoLabels(messages));
+    }
+
+    private void refreshCharts() {
+
+    }
+
+    private List<Label> getInfoLabels(List<String> messages) {
+        return messages.stream().map(message -> {
+            var label = new Label(message);
+            label.setStyle("-fx-font: 16 arial;");
+            label.setTextAlignment(TextAlignment.CENTER);
+            return label;
+        }).toList();
     }
 
 }

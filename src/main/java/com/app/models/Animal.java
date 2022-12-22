@@ -12,8 +12,7 @@ import java.util.Random;
 
 public class Animal extends AbstractMapEntity {
 
-    private final IWorldMap worldMap;
-
+    private final WorldMap worldMap;
     private int currentEnergy;
     private MoveDirection direction = MoveDirection.N;
     private final List<Integer> genotype;
@@ -21,14 +20,14 @@ public class Animal extends AbstractMapEntity {
 
     private final Random random = new Random();
 
-    public Animal(CustomConfiguration configuration, IWorldMap worldMap) {
+    public Animal(CustomConfiguration configuration, WorldMap worldMap) {
         this.configuration = configuration;
         this.worldMap = worldMap;
         this.genotype = generateGenotype();
         init();
     }
 
-    public Animal(CustomConfiguration configuration, IWorldMap worldMap, List<Integer> genotype) {
+    public Animal(CustomConfiguration configuration, WorldMap worldMap, List<Integer> genotype) {
         this.configuration = configuration;
         this.worldMap = worldMap;
         this.genotype = genotype;
@@ -43,6 +42,11 @@ public class Animal extends AbstractMapEntity {
         direction = direction.next(rotation);
         // move
         worldMap.move(this);
+    }
+
+    public void eat() {
+        currentEnergy += configuration.plantEnergy();
+        worldMap.eat(this);
     }
 
     public MoveDirection getDirection() {
@@ -65,7 +69,7 @@ public class Animal extends AbstractMapEntity {
     public Shape getShape() {
         var energyPercentage = currentEnergy * 1.0 / configuration.startEnergy();
         var color = energyPercentage < 1 ? energyPercentage : 1;
-        return new Circle(10, Color.color(color, 0, 0));
+        return new Circle(getTileSize() / 2, Color.color(color, 0, 0));
     }
 
     private void init() {

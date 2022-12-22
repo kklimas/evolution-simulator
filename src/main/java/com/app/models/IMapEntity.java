@@ -7,6 +7,8 @@ public interface IMapEntity {
 
     void selectPosition();
 
+    int getTileSize();
+
     Vector2d getPosition();
 
     Shape getShape();

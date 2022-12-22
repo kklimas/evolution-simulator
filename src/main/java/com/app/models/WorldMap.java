@@ -7,30 +7,37 @@ import com.app.utils.EntitiesComparator;
 
 import java.util.*;
 
-public class WorldMap implements IWorldMap {
+public class WorldMap {
     private final CustomConfiguration configuration;
     private final Map<Vector2d, SortedSet<IMapEntity>> entities;
     private final Random random = new Random();
+
+    private int deadCount = 0;
 
     public WorldMap(CustomConfiguration configuration) {
         this.configuration = configuration;
         this.entities = new HashMap<>();
     }
 
-    @Override
-    public void place(IMapEntity entity) {
+    public boolean place(IMapEntity entity) {
         if (entities.containsKey(entity.getPosition())) {
-            entities.get(entity.getPosition()).add(entity);
+            if (entity.getClass().equals(Plant.class)
+                    && entities.get(entity.getPosition()).last().getClass().equals(Plant.class)) {
+                return false;
+            }
+            return entities.get(entity.getPosition()).add(entity);
         } else {
             var treeSet = new TreeSet<>(new EntitiesComparator());
-            treeSet.add(entity);
+            var result = treeSet.add(entity);
             entities.put(entity.getPosition(), treeSet);
+            return result;
         }
     }
 
-    @Override
     public void move(Animal animal) {
-        // TODO do not repeat code :) and check second map variant
+
+        remove(animal);
+
         // move animal depends on map variant
         var nextPosition = animal.getPosition().add(animal.getDirection().toVector2d());
         if (configuration.mapVariant().equals(MapVariant.GLOBE)) {
@@ -66,35 +73,47 @@ public class WorldMap implements IWorldMap {
 
         }
 
-        // replace animal
-        var set = entities.get(animal.getPosition());
-        set.remove(animal);
-        if (set.isEmpty()) {
-            entities.remove(animal.getPosition());
-        }
         place(animal);
     }
 
-    @Override
+    public void eat(Animal animal) {
+        remove(animal);
+        place(animal);
+    }
+
+
     public void removeAll(List<IMapEntity> entitiesList) {
         entitiesList.forEach(this::remove);
     }
 
-    @Override
-    public List<Vector2d> getTakenPlaces() {
-        return entities.keySet().stream().toList();
+
+    public Set<Vector2d> getTakenPlaces() {
+        return entities.keySet();
     }
 
-    @Override
+
     public SortedSet<IMapEntity> objectsAt(Vector2d position) {
         return entities.get(position);
     }
 
     private void remove(IMapEntity entity) {
         var set = entities.get(entity.getPosition());
-        set.remove(entity);
-        if (set.isEmpty()) {
-            entities.remove(entity.getPosition());
+        if (set != null) {
+            set.remove(entity);
+            if (set.isEmpty()) {
+                entities.remove(entity.getPosition());
+            }
+        } else {
+            System.out.println("Error");
         }
+
+    }
+
+    public int getDeadCount() {
+        return deadCount;
+    }
+
+    public void increaseDeadCount(int count) {
+        deadCount += count;
     }
 }
