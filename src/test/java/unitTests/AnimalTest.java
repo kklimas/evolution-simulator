@@ -12,12 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class AnimalTest {
 
     CustomConfiguration configuration = getDefaultConfiguration();
-    WorldMap worldMap;
 
     @Test
     void reproductionTest() {
-        var a1 = new Animal(configuration, worldMap);
-        var a2 = new Animal(configuration, worldMap);
+        var a1 = new Animal(configuration);
+        var a2 = new Animal(configuration);
 
         a1.setCurrentEnergy(40);
         a2.setCurrentEnergy(60);

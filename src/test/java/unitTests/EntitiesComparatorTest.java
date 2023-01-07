@@ -17,7 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EntitiesComparatorTest {
 
-    private WorldMap worldMap;
     private TreeSet<IMapEntity> entities;
     private final Vector2d position = new Vector2d(0, 0);
     private final CustomConfiguration configuration = getDefaultConfiguration();
@@ -31,9 +30,9 @@ class EntitiesComparatorTest {
     void compare1() {
         // given 3 animals at same position with different energy
 
-        var a1 = new Animal(configuration, worldMap);
-        var a2 = new Animal(configuration, worldMap);
-        var a3 = new Animal(configuration, worldMap);
+        var a1 = new Animal(configuration);
+        var a2 = new Animal(configuration);
+        var a3 = new Animal(configuration);
 
         a1.setPosition(position);
         a2.setPosition(position);
@@ -52,9 +51,9 @@ class EntitiesComparatorTest {
     void compare2() {
         // given 2 animals and one plant at same position with different energy
 
-        var a1 = new Animal(configuration, worldMap);
+        var a1 = new Animal(configuration);
         var a2 = new Plant(configuration);
-        var a3 = new Animal(configuration, worldMap);
+        var a3 = new Animal(configuration);
 
         a1.setPosition(position);
         a2.setPosition(position);
@@ -73,7 +72,7 @@ class EntitiesComparatorTest {
     void compare3() {
         // given one animal and 2 plants at same position
 
-        var a1 = new Animal(configuration, worldMap);
+        var a1 = new Animal(configuration);
         var a2 = new Plant(configuration);
         var a3 = new Plant(configuration);
 
