@@ -15,6 +15,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+
 import java.io.File;
 import java.util.Arrays;
 
@@ -25,7 +26,6 @@ public class App extends Application {
 
     private static final String CONFIG_FOLDER_PATH = "src/main/resources/configuration/%s";
     private static final String CSV_FOLDER_PATH = "src/main/resources/csv";
-
     private CustomConfiguration configuration;
     private VBox layout;
     private Button filePicker;
@@ -37,12 +37,9 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
-
-        var directoryCleared = clearCSVDirectory();
-        if (!directoryCleared) {
-            System.out.println("Directory not cleaned up :((");
+        if (!clearCSVDirectory()) {
+            System.out.println("Cannot clean up csv directory...");
         }
-
         filePicker.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
             File file = fileChooser.showOpenDialog(stage);
@@ -50,9 +47,7 @@ public class App extends Application {
                 this.configuration = getConfigurationFromFile(file);
                 pickedFile.setText(file.getName());
                 runBtn.setDisable(false);
-            } catch (InvalidConfigurationFileException e) {
-                throw new RuntimeException(e);
-            }
+            } catch (InvalidConfigurationFileException ignored) {}
         });
 
         Scene scene = new Scene(layout, INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
@@ -110,9 +105,9 @@ public class App extends Application {
         }
         Platform.runLater(new Simulation(configuration, currentSimulationId, generateCSV));
         currentSimulationId++;
+        choiceBox.setValue("");
         runBtn.setDisable(true);
         pickedFile.setText("");
-        choiceBox = setupChoiceBox();
         configuration = null;
     }
 
@@ -154,12 +149,12 @@ public class App extends Application {
         box.setOnAction(event -> {
             int selectedIndex = box.getSelectionModel().getSelectedIndex();
 
-            String relativePath = switch (selectedIndex) {
+            var relativePath = switch (selectedIndex) {
                 case 1 -> "small.txt";
                 case 2 -> "medium.txt";
                 default -> "huge.txt";
             };
-            File file = new File(CONFIG_FOLDER_PATH.formatted(relativePath));
+            var file = new File(CONFIG_FOLDER_PATH.formatted(relativePath));
             try {
                 configuration = getConfigurationFromFile(file);
                 runBtn.setDisable(false);

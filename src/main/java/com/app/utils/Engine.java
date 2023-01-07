@@ -8,6 +8,7 @@ import com.app.entities.IMapEntity;
 import com.app.entities.Plant;
 import com.app.enums.MoveDirection;
 import com.app.enums.variants.MapVariant;
+import com.app.enums.variants.PlantGrowVariant;
 import com.app.models.Vector2d;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
@@ -276,6 +277,20 @@ public class Engine implements Runnable {
             var treeSet = new TreeSet<>(new EntitiesComparator());
             treeSet.add(entity);
             entities.put(entity.getPosition(), treeSet);
+        }
+    }
+
+    private void placePlant() {
+        var choice = random.nextInt(5);
+
+        if (PlantGrowVariant.FORESTED_AREA == configuration.plantGrowVariant()) {
+            if (choice < 4) {
+
+            } else {
+
+            }
+        } else {
+
         }
     }
 

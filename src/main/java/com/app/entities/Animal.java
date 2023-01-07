@@ -2,6 +2,8 @@ package com.app.entities;
 
 import com.app.configurations.CustomConfiguration;
 import com.app.enums.MoveDirection;
+import com.app.enums.variants.AnimalBehaveVariant;
+import com.app.enums.variants.MutationVariant;
 import com.app.models.Vector2d;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -40,8 +42,19 @@ public class Animal extends AbstractMapEntity {
         // rotation
         currentGenomeIndex = currentGenomeIndex % genotype.size();
         var rotation = this.genotype.get(currentGenomeIndex);
-        currentGenomeIndex++;
         direction = direction.next(rotation);
+
+        if (AnimalBehaveVariant.WELL_BRED == configuration.animalBehaveVariant()) {
+            currentGenomeIndex++;
+        } else {
+            var choice = random.nextInt(5);
+            if (choice < 4) {
+                currentGenomeIndex++;
+            } else {
+                currentGenomeIndex = random.nextInt(configuration.genomeLength());
+            }
+        }
+
         // move
         readyForReproduction = true;
         daysLiving++;
@@ -76,7 +89,7 @@ public class Animal extends AbstractMapEntity {
     @Override
     public Shape getShape() {
         var energyPercentage = currentEnergy * 1.0 / configuration.startEnergy();
-        var color = energyPercentage < 1 ? energyPercentage : 1;
+        var color = energyPercentage < 1 && energyPercentage >= 0 ? energyPercentage : 1;
         return new Circle(getTileSize() / 2, Color.color(color, 0, 0));
     }
 
@@ -89,9 +102,13 @@ public class Animal extends AbstractMapEntity {
         double p2Indicator = (parent2.getCurrentEnergy() / totalEnergy) * configuration.genomeLength();
         int p1GensNumber = (int) Math.floor(p1Indicator);
         int p2GensNumber = (int) Math.ceil(p2Indicator);
-        var side = (int) Math.round(Math.random());
+        var side = random.nextInt(2);
 
-        if (side == 0) {
+        if (p1GensNumber == 0) {
+            genes.addAll(parent2.getGenotype());
+        } else if (p2GensNumber == 0) {
+            genes.addAll(this.getGenotype());
+        } else if (side == 0) {
             var parent1CutGenotype = this.getGenotype().subList(0, p1GensNumber);
             var parent2CutGenotype = parent2.getGenotype().subList(p1GensNumber, p1GensNumber + p2GensNumber);
 
@@ -109,6 +126,17 @@ public class Animal extends AbstractMapEntity {
                 .nextInt((configuration.maximalMutationNumber() - configuration.minimalMutationNumber()) + 1) + configuration.minimalMutationNumber();
         for (var i = 0; i < mutatedGenes; i++) {
             var chosenGeneIndex = random.nextInt( genes.size());
+
+            if (MutationVariant.RANDOM == configuration.mutationVariant()) {
+                genes.set(chosenGeneIndex, random.nextInt(9));
+            } else {
+                var gen = genes.get(chosenGeneIndex);
+                var value = random.nextInt() - 0.5 > 0 ? 1: -1;
+                gen += value;
+                if (gen > 8) gen = 0;
+                if (gen < 0) gen = 8;
+                genes.set(chosenGeneIndex, gen);
+            }
             genes.set(chosenGeneIndex, random.nextInt(9));
         }
         return new Animal(configuration, this.getPosition(), genes);

@@ -1,6 +1,7 @@
 package com.app.utils;
 
 import com.app.configurations.CustomConfiguration;
+import com.app.enums.variants.AnimalBehaveVariant;
 import com.app.enums.variants.MapVariant;
 import com.app.enums.variants.MutationVariant;
 import com.app.enums.variants.PlantGrowVariant;
@@ -32,6 +33,7 @@ public class ConfigurationReaderService {
     private static final String MAP_VARIANT = "mapVariant";
     private static final String PLANT_GROW_VARIANT = "plantGrowVariant";
     private static final String MUTATION_VARIANT = "mutationVariant";
+    private static final String ANIMAL_BEHAVE_VARIANT = "animalBehaveVariant";
 
     private static final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
@@ -58,7 +60,8 @@ public class ConfigurationReaderService {
                 D_GENOME_LENGTH,
                 D_MAP_VARIANT,
                 D_PLANT_GROW_VARIANT,
-                D_MUTATION_VARIANT
+                D_MUTATION_VARIANT,
+                D_ANIMAL_BEHAVE_VARIANT
         );
     }
 
@@ -104,7 +107,8 @@ public class ConfigurationReaderService {
         var v1 = properties.get(MAP_VARIANT);
         var v2 = properties.get(PLANT_GROW_VARIANT);
         var v3 = properties.get(MUTATION_VARIANT);
-        if (validateVariant(v1) || validateVariant(v2) || validateVariant(v3))
+        var v4 = properties.get(ANIMAL_BEHAVE_VARIANT);
+        if (validateVariant(v1) || validateVariant(v2) || validateVariant(v3) || validateVariant(v4))
             throw new InvalidConfigurationFileException("Application variants are invalid.", false);
 
         var props = new ArrayList<Object>(List.of(mapWidth,
@@ -121,7 +125,8 @@ public class ConfigurationReaderService {
                 genomeLength,
                 v1,
                 v2,
-                v3));
+                v3,
+                v4));
         if (!props.stream().allMatch(Objects::nonNull))
             throw new InvalidConfigurationFileException("Properties names are invalid.", false);
 
@@ -129,7 +134,7 @@ public class ConfigurationReaderService {
         var mapVariant = MapVariant.values()[v1];
         var plantGrowVariant = PlantGrowVariant.values()[v2];
         var mutationVariant = MutationVariant.values()[v3];
-
+        var animalBehaveVariant = AnimalBehaveVariant.values()[v4];
 
         return new CustomConfiguration(
                 mapWidth,
@@ -146,7 +151,8 @@ public class ConfigurationReaderService {
                 genomeLength,
                 mapVariant,
                 plantGrowVariant,
-                mutationVariant
+                mutationVariant,
+                animalBehaveVariant
         );
     }
 

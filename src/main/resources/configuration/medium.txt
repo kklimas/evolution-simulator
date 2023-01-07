@@ -13,3 +13,4 @@ genomeLength=8
 mapVariant=0
 plantGrowVariant=1
 mutationVariant=1
+animalBehaveVariant=0

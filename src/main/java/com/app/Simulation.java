@@ -104,7 +104,7 @@ public class Simulation implements Runnable {
     public void draw(DrawDTO drawDTO, boolean showDominant) {
         Platform.runLater(() -> {
             refreshMap(drawDTO, showDominant);
-            refreshInfo(drawDTO, !showDominant);
+            refreshInfo(drawDTO);
             refreshCharts();
         });
     }
@@ -161,7 +161,7 @@ public class Simulation implements Runnable {
         map.getChildren().add(grid);
     }
 
-    private void refreshInfo(DrawDTO drawDTO, boolean updateCSV) {
+    private void refreshInfo(DrawDTO drawDTO) {
         info.getChildren().clear();
 
         var currentDay = "Current day:%n %d".formatted(drawDTO.currentDay());

@@ -1,5 +1,6 @@
 package com.app.configurations;
 
+import com.app.enums.variants.AnimalBehaveVariant;
 import com.app.enums.variants.MapVariant;
 import com.app.enums.variants.MutationVariant;
 import com.app.enums.variants.PlantGrowVariant;
@@ -31,6 +32,7 @@ public class DefaultConfiguration {
     public static final MapVariant D_MAP_VARIANT = MapVariant.GLOBE;
     public static final PlantGrowVariant D_PLANT_GROW_VARIANT = PlantGrowVariant.FORESTED_AREA;
     public static final MutationVariant D_MUTATION_VARIANT = MutationVariant.RANDOM;
+    public static final AnimalBehaveVariant D_ANIMAL_BEHAVE_VARIANT = AnimalBehaveVariant.WELL_BRED;
 
     private DefaultConfiguration() {}
 }
