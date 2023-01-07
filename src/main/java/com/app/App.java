@@ -16,13 +16,15 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.util.Arrays;
 
 import static com.app.configurations.DefaultConfiguration.*;
-import static com.app.services.ConfigurationReaderService.*;
+import static com.app.utils.ConfigurationReaderService.*;
 
 public class App extends Application {
 
-    private static final String FOLDER_PATH = "src/main/resources/%s";
+    private static final String CONFIG_FOLDER_PATH = "src/main/resources/configuration/%s";
+    private static final String CSV_FOLDER_PATH = "src/main/resources/csv";
 
     private CustomConfiguration configuration;
     private VBox layout;
@@ -30,9 +32,17 @@ public class App extends Application {
     private ChoiceBox<String> choiceBox;
     private Label pickedFile;
     private Button runBtn;
+    private boolean generateCSV = false;
+    private int currentSimulationId = 1;
 
     @Override
     public void start(Stage stage) {
+
+        var directoryCleared = clearCSVDirectory();
+        if (!directoryCleared) {
+            System.out.println("Directory not cleaned up :((");
+        }
+
         filePicker.setOnAction(actionEvent -> {
             FileChooser fileChooser = new FileChooser();
             File file = fileChooser.showOpenDialog(stage);
@@ -78,6 +88,9 @@ public class App extends Application {
 
         Label label = new Label("Set up configuration, then start program");
 
+        var checkBox = new CheckBox("Generate CSV file");
+        checkBox.setOnAction(event -> generateCSV = checkBox.isSelected());
+
         runBtn = new Button("Run");
         runBtn.setDisable(true);
         runBtn.setPrefWidth(100);
@@ -85,7 +98,7 @@ public class App extends Application {
 
         var filePickers = setupFilePickers();
 
-        layout.getChildren().addAll(greetingLabel, infoLabel, label, filePickers, runBtn);
+        layout.getChildren().addAll(greetingLabel, infoLabel, label, filePickers, checkBox, runBtn);
     }
     public static void main(String[] args) {
         launch();
@@ -95,8 +108,8 @@ public class App extends Application {
         if (configuration == null) {
             configuration = getDefaultConfiguration();
         }
-        Platform.runLater(new Simulation(configuration));
-
+        Platform.runLater(new Simulation(configuration, currentSimulationId, generateCSV));
+        currentSimulationId++;
         runBtn.setDisable(true);
         pickedFile.setText("");
         choiceBox = setupChoiceBox();
@@ -146,7 +159,7 @@ public class App extends Application {
                 case 2 -> "medium.txt";
                 default -> "huge.txt";
             };
-            File file = new File(FOLDER_PATH.formatted(relativePath));
+            File file = new File(CONFIG_FOLDER_PATH.formatted(relativePath));
             try {
                 configuration = getConfigurationFromFile(file);
                 runBtn.setDisable(false);
@@ -155,5 +168,16 @@ public class App extends Application {
             }
         });
         return box;
+    }
+
+    private boolean clearCSVDirectory() {
+        File dir = new File(CSV_FOLDER_PATH);
+        var filesToRemove = dir.listFiles();
+        if (filesToRemove == null) {
+            return true;
+        }
+        return Arrays.stream(filesToRemove)
+                .map(File::delete)
+                .allMatch(e -> e.equals(true));
     }
 }

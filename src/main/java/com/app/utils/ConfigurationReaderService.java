@@ -1,4 +1,4 @@
-package com.app.services;
+package com.app.utils;
 
 import com.app.configurations.CustomConfiguration;
 import com.app.enums.variants.MapVariant;

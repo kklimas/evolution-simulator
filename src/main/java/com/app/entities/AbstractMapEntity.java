@@ -1,6 +1,7 @@
-package com.app.models;
+package com.app.entities;
 
 import com.app.configurations.CustomConfiguration;
+import com.app.models.Vector2d;
 
 import java.util.Random;
 

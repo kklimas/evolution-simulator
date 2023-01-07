@@ -1,4 +1,4 @@
-package com.app.models;
+package com.app.entities;
 
 import com.app.configurations.CustomConfiguration;
 import javafx.scene.paint.Color;

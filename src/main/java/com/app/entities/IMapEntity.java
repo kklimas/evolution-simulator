@@ -1,5 +1,6 @@
-package com.app.models;
+package com.app.entities;
 
+import com.app.models.Vector2d;
 import javafx.scene.shape.Shape;
 
 public interface IMapEntity {

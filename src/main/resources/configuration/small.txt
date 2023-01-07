@@ -1,10 +1,10 @@
-mapWidth=100
-mapHeight=100
-startPlantsNumber=200
-plantEnergy=20
-newPlantsEveryDay=20
-animalsStartNumber=50
-startEnergy=100
+mapWidth=5
+mapHeight=5
+startPlantsNumber=10
+plantEnergy=10
+newPlantsEveryDay=1
+animalsStartNumber=2
+startEnergy=20
 energyNeedToReproduce=10
 energyWastedDuringReproduction=10
 minimalMutationNumber=10

@@ -2,7 +2,9 @@ package com.app;
 
 import com.app.configurations.CustomConfiguration;
 import com.app.dtos.DrawDTO;
-import com.app.models.*;
+import com.app.entities.Animal;
+import com.app.models.CSVRecord;
+import com.app.utils.Engine;
 import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -12,28 +14,35 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 
 import java.util.*;
 
 import static com.app.configurations.DefaultConfiguration.*;
+import static com.app.utils.CSVWriterService.writeToCSV;
 
 public class Simulation implements Runnable {
 
+    private final int id;
     private final CustomConfiguration configuration;
-    private final WorldMap worldMap;
+    private final boolean generateCSV;
+    private final String FILE_PATH;
     private GridPane layout;
     private HBox map;
+    private HBox charts;
     private VBox info;
     private HBox buttons;
     private Button runBtn;
 
     private int tileSize;
 
-    public Simulation(CustomConfiguration configuration) {
+    public Simulation(CustomConfiguration configuration, int id, boolean generateCSV) {
+        this.id = id;
         this.configuration = configuration;
-        this.worldMap = new WorldMap(configuration);
+        this.generateCSV = generateCSV;
+        this.FILE_PATH = "src/main/resources/csv/simulation-%d.csv".formatted(id);
     }
 
     @Override
@@ -44,11 +53,11 @@ public class Simulation implements Runnable {
         Scene scene = new Scene(layout, WINDOW_WIDTH, WINDOW_HEIGHT);
         Stage stage = new Stage();
         stage.setScene(scene);
-        stage.setTitle("Simulation");
+        stage.setTitle("Simulation %d".formatted(id));
         stage.show();
 
         runBtn = new Button("Start / Stop Simulation");
-        var engine = new Engine(this, configuration, worldMap, stage, runBtn);
+        var engine = new Engine(this, configuration, stage, runBtn);
         var engineThread = new Thread(engine);
         engineThread.start();
 
@@ -62,6 +71,10 @@ public class Simulation implements Runnable {
         info = new VBox();
         info.setAlignment(Pos.TOP_CENTER);
         info.setSpacing(24);
+
+        charts = new HBox();
+        charts.setAlignment(Pos.TOP_CENTER);
+        charts.setSpacing(24);
 
         buttons = new HBox();
         buttons.getChildren().add(runBtn);
@@ -79,7 +92,7 @@ public class Simulation implements Runnable {
         layout.getRowConstraints().addAll(row1, row2);
         layout.setGridLinesVisible(true);
         layout.add(map, 0, 0);
-        layout.add(new HBox(), 0, 1);
+        layout.add(charts, 0, 1);
         layout.add(info, 1, 0);
         layout.add(buttons, 1, 1);
 
@@ -88,15 +101,33 @@ public class Simulation implements Runnable {
         tileSize = Math.min(w, h);
     }
 
-    public void draw(DrawDTO drawDTO) {
+    public void draw(DrawDTO drawDTO, boolean showDominant) {
         Platform.runLater(() -> {
-            refreshMap(drawDTO.entitiesToDraw());
-            refreshInfo(drawDTO);
+            refreshMap(drawDTO, showDominant);
+            refreshInfo(drawDTO, !showDominant);
             refreshCharts();
         });
     }
 
-    private void refreshMap(List<IMapEntity> entities) {
+    public void updateCSV(DrawDTO drawDTO) {
+        if (generateCSV) {
+            var csvRecord = new CSVRecord(
+                    drawDTO.currentDay(),
+                    drawDTO.animalsNumber(),
+                    drawDTO.averageEnergy(),
+                    drawDTO.averageAnimalLifespan(),
+                    drawDTO.plantsNumber(),
+                    drawDTO.freePlaces(),
+                    drawDTO.deadAnimals()
+            );
+
+            writeToCSV(FILE_PATH, csvRecord);
+        }
+    }
+
+    private void refreshMap(DrawDTO data, boolean showDominant) {
+        var entities = data.entitiesToDraw();
+
         map.getChildren().clear();
         var grid = new GridPane();
 
@@ -112,22 +143,31 @@ public class Simulation implements Runnable {
             grid.getColumnConstraints().add(colConstr);
         }
 
-
         // draw objects
-        entities.forEach(entity ->
-                grid.add(entity.getShape(), entity.getPosition().getX(), entity.getPosition().getY())
-        );
+        entities.forEach(entity -> {
+            if (entity.getClass().equals(Animal.class)) {
+                var animalGenotype = ((Animal) entity).getGenotype().toString();
+                var shape = entity.getShape();
+                if (animalGenotype.equals(data.dominantGenotype()) && showDominant) {
+                    shape.setFill(Color.YELLOW);
+                }
+                grid.add(shape, entity.getPosition().getX(), entity.getPosition().getY());
+            } else {
+                grid.add(entity.getShape(), entity.getPosition().getX(), entity.getPosition().getY());
+            }
+        });
         grid.getChildren().forEach(item -> item.setOnMouseClicked(System.out::println));
 
         map.getChildren().add(grid);
     }
 
-    private void refreshInfo(DrawDTO drawDTO) {
+    private void refreshInfo(DrawDTO drawDTO, boolean updateCSV) {
         info.getChildren().clear();
 
         var currentDay = "Current day:%n %d".formatted(drawDTO.currentDay());
         var animalsInfo = "Current animals number:%n %d".formatted(drawDTO.animalsNumber());
         var averageEnergy = "Average animal energy:%n %d".formatted(drawDTO.averageEnergy());
+        var averageAnimalLifespan = "Average animal lifespan:%n %d".formatted(drawDTO.averageAnimalLifespan());
         var plantsInfo = "Current plants number:%n %d".formatted(drawDTO.plantsNumber());
         var freePlaces = "Current free places:%n %d".formatted(drawDTO.freePlaces());
         var deadAnimals = "Dead animals number:%n %d".formatted(drawDTO.deadAnimals());
@@ -137,6 +177,7 @@ public class Simulation implements Runnable {
                 currentDay,
                 animalsInfo,
                 averageEnergy,
+                averageAnimalLifespan,
                 plantsInfo,
                 freePlaces,
                 deadAnimals,
@@ -146,7 +187,35 @@ public class Simulation implements Runnable {
     }
 
     private void refreshCharts() {
-
+//        charts.getChildren().removeAll();
+//        //defining the axes
+//        var xAxis = new NumberAxis();
+//        var yAxis = new NumberAxis();
+//        xAxis.setLabel("Number of Month");
+//        //creating the chart
+//        var lineChart = new LineChart<>(xAxis,yAxis);
+//
+//        lineChart.setTitle("Stock Monitoring, 2010");
+//        //defining a series
+//        var series = new XYChart.Series();
+//        series.setName("My portfolio");
+//        //populating the series with data
+//        series.getData().add(new XYChart.Data(1, 23));
+//        series.getData().add(new XYChart.Data(2, 14));
+//        series.getData().add(new XYChart.Data(3, 15));
+//        series.getData().add(new XYChart.Data(4, 24));
+//        series.getData().add(new XYChart.Data(5, 34));
+//        series.getData().add(new XYChart.Data(6, 36));
+//        series.getData().add(new XYChart.Data(7, 22));
+//        series.getData().add(new XYChart.Data(8, 45));
+//        series.getData().add(new XYChart.Data(9, 43));
+//        series.getData().add(new XYChart.Data(10, 17));
+//        series.getData().add(new XYChart.Data(11, 29));
+//        series.getData().add(new XYChart.Data(12, 25));
+//
+//        lineChart.getData().add(series);
+//
+//        charts.getChildren().add(lineChart);
     }
 
     private List<Label> getInfoLabels(List<String> messages) {

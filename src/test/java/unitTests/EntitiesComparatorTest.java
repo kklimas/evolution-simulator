@@ -1,6 +1,9 @@
 package unitTests;
 
 import com.app.configurations.CustomConfiguration;
+import com.app.entities.Animal;
+import com.app.entities.IMapEntity;
+import com.app.entities.Plant;
 import com.app.models.*;
 import com.app.utils.EntitiesComparator;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.TreeSet;
 
-import static com.app.services.ConfigurationReaderService.getDefaultConfiguration;
+import static com.app.utils.ConfigurationReaderService.getDefaultConfiguration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class EntitiesComparatorTest {

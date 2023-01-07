@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static com.app.services.ConfigurationReaderService.*;
+import static com.app.utils.ConfigurationReaderService.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigurationReaderServiceTest {
