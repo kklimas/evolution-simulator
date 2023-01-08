@@ -8,7 +8,6 @@ import com.app.entities.IMapEntity;
 import com.app.entities.Plant;
 import com.app.enums.MoveDirection;
 import com.app.enums.variants.MapVariant;
-import com.app.enums.variants.PlantGrowVariant;
 import com.app.models.Vector2d;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
@@ -25,6 +24,7 @@ public class Engine implements Runnable {
     private final CustomConfiguration configuration;
     private final ExecutorService executorService;
     private final Map<Vector2d, SortedSet<IMapEntity>> entities;
+    private final HashSet<Vector2d> deadPlaces = new HashSet<>();
     private final Random random = new Random();
     private final Stage stage;
     private final Button runButton;
@@ -105,7 +105,10 @@ public class Engine implements Runnable {
         if (!deadMark.isEmpty()) {
             removeAll(deadMark.stream().map(IMapEntity.class::cast).toList());
             deadCount += deadMark.size();
-            deadMark.forEach(animal -> totalLifespanOfDeadAnimals += animal.getDaysLiving());
+            deadMark.forEach(animal -> {
+                deadPlaces.add(animal.getPosition());
+                totalLifespanOfDeadAnimals += animal.getDaysLiving();
+            });
         }
     }
 
@@ -160,10 +163,11 @@ public class Engine implements Runnable {
                 }
             }
             if (isReadyForReproduction(animal1) && isReadyForReproduction(animal2)) {
+                var child = animal1.getChild(animal2);
+
                 animal1.reproduce();
                 animal2.reproduce();
 
-                var child = animal1.getChild(animal2);
                 families.add(List.of(animal1, animal2, child));
             }
         });
@@ -208,7 +212,7 @@ public class Engine implements Runnable {
                 .map(Animal::getCurrentEnergy).mapToInt(Integer::intValue).sum() / animalsEntities.size()
                 : 0;
 
-        var freePlaces = configuration.mapWidth() * configuration.mapHeight() - animalsEntities.size() - plantsEntities.size();
+        var freePlaces = configuration.mapWidth() * configuration.mapHeight() - entities.keySet().size();
 
         var dominantGenotype = getDominantGenotype().toString();
 
@@ -277,20 +281,6 @@ public class Engine implements Runnable {
             var treeSet = new TreeSet<>(new EntitiesComparator());
             treeSet.add(entity);
             entities.put(entity.getPosition(), treeSet);
-        }
-    }
-
-    private void placePlant() {
-        var choice = random.nextInt(5);
-
-        if (PlantGrowVariant.FORESTED_AREA == configuration.plantGrowVariant()) {
-            if (choice < 4) {
-
-            } else {
-
-            }
-        } else {
-
         }
     }
 

@@ -60,11 +60,11 @@ public class App extends Application {
             alert.setTitle("Close application");
             alert.setHeaderText("You are about to close whole application!");
             alert.setContentText("Are you sure to do this?");
-
             var showAlert = alert.showAndWait();
             if (showAlert.isPresent() && showAlert.get() == ButtonType.OK) {
-                System.exit(0);
+                stage.close();
             }
+            event.consume();
         });
     }
     @Override

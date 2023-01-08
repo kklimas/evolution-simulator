@@ -11,6 +11,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
@@ -25,10 +28,12 @@ import static com.app.utils.CSVWriterService.writeToCSV;
 
 public class Simulation implements Runnable {
 
+    private static final String FILE_PATH = "src/main/resources/csv/simulation-%d.csv";
+
     private final int id;
     private final CustomConfiguration configuration;
     private final boolean generateCSV;
-    private final String FILE_PATH;
+
     private GridPane layout;
     private HBox map;
     private HBox charts;
@@ -42,7 +47,6 @@ public class Simulation implements Runnable {
         this.id = id;
         this.configuration = configuration;
         this.generateCSV = generateCSV;
-        this.FILE_PATH = "src/main/resources/csv/simulation-%d.csv".formatted(id);
     }
 
     @Override
@@ -69,7 +73,7 @@ public class Simulation implements Runnable {
         map.setAlignment(Pos.CENTER);
 
         info = new VBox();
-        info.setAlignment(Pos.TOP_CENTER);
+        info.setAlignment(Pos.CENTER);
         info.setSpacing(24);
 
         charts = new HBox();
@@ -77,6 +81,7 @@ public class Simulation implements Runnable {
         charts.setSpacing(24);
 
         buttons = new HBox();
+        buttons.setAlignment(Pos.CENTER);
         buttons.getChildren().add(runBtn);
 
         var col1 = new ColumnConstraints();
@@ -90,7 +95,6 @@ public class Simulation implements Runnable {
         var row2 = new RowConstraints();
         row2.setPrefHeight(CHARTS_HEIGHT);
         layout.getRowConstraints().addAll(row1, row2);
-        layout.setGridLinesVisible(true);
         layout.add(map, 0, 0);
         layout.add(charts, 0, 1);
         layout.add(info, 1, 0);
@@ -121,7 +125,7 @@ public class Simulation implements Runnable {
                     drawDTO.deadAnimals()
             );
 
-            writeToCSV(FILE_PATH, csvRecord);
+            writeToCSV(FILE_PATH.formatted(id), csvRecord);
         }
     }
 
@@ -130,12 +134,13 @@ public class Simulation implements Runnable {
 
         map.getChildren().clear();
         var grid = new GridPane();
+        grid.setBorder(new Border(new BorderStroke(Color.BLACK,
+                BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
         var rowConstr = new RowConstraints(tileSize);
         rowConstr.setValignment(VPos.CENTER);
         var colConstr = new ColumnConstraints(tileSize);
         colConstr.setHalignment(HPos.CENTER);
-        grid.setGridLinesVisible(true);
         for (var i = 0; i < configuration.mapHeight(); i++) {
             grid.getRowConstraints().add(rowConstr);
         }
@@ -184,6 +189,7 @@ public class Simulation implements Runnable {
                 mostFamousGenotype
         );
         info.getChildren().addAll(getInfoLabels(messages));
+
     }
 
     private void refreshCharts() {
