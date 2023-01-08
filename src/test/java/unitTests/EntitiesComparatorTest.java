@@ -5,6 +5,7 @@ import com.app.entities.Animal;
 import com.app.entities.IMapEntity;
 import com.app.entities.Plant;
 import com.app.models.*;
+import com.app.utils.Engine;
 import com.app.utils.EntitiesComparator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +21,7 @@ class EntitiesComparatorTest {
     private TreeSet<IMapEntity> entities;
     private final Vector2d position = new Vector2d(0, 0);
     private final CustomConfiguration configuration = getDefaultConfiguration();
+    private Engine engine;
 
     @BeforeEach
     void setup () {
@@ -30,9 +32,9 @@ class EntitiesComparatorTest {
     void compare1() {
         // given 3 animals at same position with different energy
 
-        var a1 = new Animal(configuration);
-        var a2 = new Animal(configuration);
-        var a3 = new Animal(configuration);
+        var a1 = new Animal(configuration, engine);
+        var a2 = new Animal(configuration, engine);
+        var a3 = new Animal(configuration, engine);
 
         a1.setPosition(position);
         a2.setPosition(position);
@@ -51,9 +53,9 @@ class EntitiesComparatorTest {
     void compare2() {
         // given 2 animals and one plant at same position with different energy
 
-        var a1 = new Animal(configuration);
+        var a1 = new Animal(configuration, engine);
         var a2 = new Plant(configuration);
-        var a3 = new Animal(configuration);
+        var a3 = new Animal(configuration, engine);
 
         a1.setPosition(position);
         a2.setPosition(position);
@@ -72,7 +74,7 @@ class EntitiesComparatorTest {
     void compare3() {
         // given one animal and 2 plants at same position
 
-        var a1 = new Animal(configuration);
+        var a1 = new Animal(configuration, engine);
         var a2 = new Plant(configuration);
         var a3 = new Plant(configuration);
 

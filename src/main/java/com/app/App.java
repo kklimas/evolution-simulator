@@ -83,7 +83,7 @@ public class App extends Application {
 
         Label label = new Label("Set up configuration, then start program");
 
-        var checkBox = new CheckBox("Generate CSV file");
+        var checkBox = new CheckBox("Generate CSV file (file will be generated in /resources/csv directory)");
         checkBox.setOnAction(event -> generateCSV = checkBox.isSelected());
 
         runBtn = new Button("Run");
@@ -100,9 +100,6 @@ public class App extends Application {
     }
 
     private void launchSimulation() {
-        if (configuration == null) {
-            configuration = getDefaultConfiguration();
-        }
         Platform.runLater(new Simulation(configuration, currentSimulationId, generateCSV));
         currentSimulationId++;
         choiceBox.setValue("");
@@ -147,8 +144,8 @@ public class App extends Application {
         box.getItems().add("Medium world");
 
         box.setOnAction(event -> {
+            runBtn.setDisable(true);
             int selectedIndex = box.getSelectionModel().getSelectedIndex();
-
             var relativePath = switch (selectedIndex) {
                 case 1 -> "small.txt";
                 case 2 -> "medium.txt";
@@ -159,7 +156,7 @@ public class App extends Application {
                 configuration = getConfigurationFromFile(file);
                 runBtn.setDisable(false);
             } catch (InvalidConfigurationFileException e) {
-                throw new RuntimeException(e);
+                System.out.println(e.getMessage());
             }
         });
         return box;

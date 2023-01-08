@@ -37,13 +37,17 @@ public class ConfigurationReaderService {
 
     private static final Pattern pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
 
-    private ConfigurationReaderService() {}
+    private ConfigurationReaderService() {
+    }
 
     public static CustomConfiguration getConfigurationFromFile(File file) throws InvalidConfigurationFileException {
         var properties = getPropertiesFromFile(file);
         return assignPropertiesToConfiguration(properties);
     }
 
+
+    // Method for case when user will not pick any configuration. There is no possibility to do now so however it can
+    // be used in the future.
     public static CustomConfiguration getDefaultConfiguration() {
         return new CustomConfiguration(
                 D_MAP_WIDTH,
@@ -77,7 +81,8 @@ public class ConfigurationReaderService {
 
             while (line != null) {
                 var split = line.split("=");
-                if (split.length != 2 || !pattern.matcher(split[1]).matches()) throw new InvalidConfigurationFileException(file.getName());
+                if (split.length != 2 || !pattern.matcher(split[1]).matches())
+                    throw new InvalidConfigurationFileException(file.getName());
 
                 properties.put(split[0], Integer.parseInt(split[1]));
 
@@ -111,7 +116,21 @@ public class ConfigurationReaderService {
         if (validateVariant(v1) || validateVariant(v2) || validateVariant(v3) || validateVariant(v4))
             throw new InvalidConfigurationFileException("Application variants are invalid.", false);
 
-        var props = new ArrayList<Object>(List.of(mapWidth,
+        var numericalProps = List.of(
+                mapWidth,
+                mapHeight,
+                startPlantsNumber,
+                plantEnergy,
+                newPlantsEveryDay,
+                animalsStartNumber,
+                startEnergy,
+                energyNeedToReproduce,
+                energyWastedDuringReproduction,
+                maximalMutationNumber,
+                genomeLength);
+
+        var props = new ArrayList<Object>(List.of(
+                mapWidth,
                 mapHeight,
                 startPlantsNumber,
                 plantEnergy,
@@ -127,8 +146,12 @@ public class ConfigurationReaderService {
                 v2,
                 v3,
                 v4));
-        if (!props.stream().allMatch(Objects::nonNull))
-            throw new InvalidConfigurationFileException("Properties names are invalid.", false);
+        if (!props.stream().allMatch(Objects::nonNull)
+                || energyNeedToReproduce < energyWastedDuringReproduction
+                || !numericalProps.stream().allMatch(a -> a > 0)
+                || minimalMutationNumber < 0) {
+            throw new InvalidConfigurationFileException("Configuration properties are invalid.", false);
+        }
 
 
         var mapVariant = MapVariant.values()[v1];
@@ -159,4 +182,5 @@ public class ConfigurationReaderService {
     private static boolean validateVariant(int number) {
         return number <= -1 || number >= 2;
     }
+
 }

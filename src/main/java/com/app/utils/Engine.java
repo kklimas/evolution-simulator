@@ -33,6 +33,7 @@ public class Engine implements Runnable {
     private int totalLifespanOfDeadAnimals = 0;
     private boolean running = false;
     private boolean exit = false;
+    private Animal selectedAnimal;
 
     public Engine(Simulation simulation, CustomConfiguration configuration, Stage stage, Button button) {
         this.simulation = simulation;
@@ -54,13 +55,13 @@ public class Engine implements Runnable {
     private void execute() {
         while (running && !exit) {
             currentDay++;
-            draw(false);
             die();
             move();
             eat();
             reproduce();
             grow();
             saveData();
+            draw(false);
         }
     }
 
@@ -84,7 +85,7 @@ public class Engine implements Runnable {
     private void placeEntities() {
         // animals
         for (int i = 0; i < configuration.animalsStartNumber(); i++) {
-            var animal = new Animal(configuration);
+            var animal = new Animal(configuration, this);
             place(animal);
         }
         // plants
@@ -106,6 +107,7 @@ public class Engine implements Runnable {
             removeAll(deadMark.stream().map(IMapEntity.class::cast).toList());
             deadCount += deadMark.size();
             deadMark.forEach(animal -> {
+                animal.setDayOfDeath(currentDay);
                 deadPlaces.add(animal.getPosition());
                 totalLifespanOfDeadAnimals += animal.getDaysLiving();
             });
@@ -225,7 +227,8 @@ public class Engine implements Runnable {
                 plantsEntities.size(),
                 freePlaces,
                 deadCount,
-                dominantGenotype
+                dominantGenotype,
+                selectedAnimal
         );
     }
 
@@ -353,10 +356,10 @@ public class Engine implements Runnable {
             animal.setPosition(nextPosition);
             animal.reduceEnergy(1);
         } else {
-            var leftBottom = new Vector2d(-1, -1);
-            var rightTop = new Vector2d(configuration.mapWidth(), configuration.mapHeight());
-
-            if (animal.getPosition().precedes(leftBottom) || animal.getPosition().follows(rightTop)) {
+            if (nextPosition.getX() < 0
+                    || nextPosition.getY() < 0
+                    || nextPosition.getX() >= configuration.mapWidth()
+                    || nextPosition.getY() >= configuration.mapHeight()) {
                 var newPosition = new Vector2d(
                         random.nextInt(configuration.mapWidth()),
                         random.nextInt(configuration.mapHeight())
@@ -371,5 +374,10 @@ public class Engine implements Runnable {
         }
 
         place(animal);
+    }
+
+    public void setSelectedAnimal(Animal selectedAnimal) {
+        this.selectedAnimal = selectedAnimal;
+        draw(true);
     }
 }

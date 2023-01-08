@@ -48,4 +48,11 @@ class ConfigurationReaderServiceTest {
         assertEquals(30, result.mapHeight());
         assertEquals(MapVariant.GLOBE, result.mapVariant());
     }
+
+    @Test
+    void test4() {
+        // should throw error because energy wasted is greater than needed
+        var file3 = new File("%s/%s".formatted(PATH, "test3"));
+        assertThrows(InvalidConfigurationFileException.class, () -> getConfigurationFromFile(file3));
+    }
 }

@@ -8,7 +8,7 @@ import com.app.enums.variants.PlantGrowVariant;
 public class DefaultConfiguration {
     public static final String TITLE = "Evolution simulation";
 
-    public static final int DELAY = 200;
+    public static final int DELAY = 50;
     public static final int INIT_WINDOW_WIDTH = 800;
     public static final int INIT_WINDOW_HEIGHT = 600;
     public static final int WINDOW_WIDTH = 1500;

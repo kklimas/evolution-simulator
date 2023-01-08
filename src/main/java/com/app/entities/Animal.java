@@ -5,6 +5,8 @@ import com.app.enums.MoveDirection;
 import com.app.enums.variants.AnimalBehaveVariant;
 import com.app.enums.variants.MutationVariant;
 import com.app.models.Vector2d;
+import com.app.utils.Engine;
+import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
@@ -15,24 +17,30 @@ import java.util.Random;
 
 public class Animal extends AbstractMapEntity {
 
+    private final Engine engine;
     private int currentEnergy;
     private MoveDirection direction = MoveDirection.N;
     private final List<Integer> genotype;
     private int currentGenomeIndex = 0;
     private int childrenNumber = 0;
     private int daysLiving = 0;
+    private int dayOfDeath = -1;
     private boolean readyForReproduction = true;
 
     private final Random random = new Random();
 
-    public Animal(CustomConfiguration configuration) {
+    public Animal(CustomConfiguration configuration, Engine engine) {
+        this.engine = engine;
         this.configuration = configuration;
+        this.currentGenomeIndex = random.nextInt(configuration.genomeLength());
         this.genotype = generateGenotype();
         init();
     }
 
-    public Animal(CustomConfiguration configuration, Vector2d currentPosition, List<Integer> genotype) {
+    public Animal(CustomConfiguration configuration, Engine engine, Vector2d currentPosition, List<Integer> genotype) {
+        this.engine = engine;
         this.configuration = configuration;
+        this.currentGenomeIndex = random.nextInt(configuration.genomeLength());
         this.genotype = genotype;
         this.position = currentPosition;
         this.currentEnergy = configuration.energyWastedDuringReproduction() * 2;
@@ -90,7 +98,10 @@ public class Animal extends AbstractMapEntity {
     public Shape getShape() {
         var energyPercentage = currentEnergy * 1.0 / configuration.startEnergy();
         var color = energyPercentage < 1 && energyPercentage >= 0 ? energyPercentage : 1;
-        return new Circle(getTileSize() / 2, Color.color(color, 0, 0));
+        var shape = new Circle(getTileSize() / 2, Color.color(color, 0, 0));
+        shape.setOnMouseClicked(event -> engine.setSelectedAnimal(this));
+        shape.setCursor(Cursor.HAND);
+        return shape;
     }
 
     public Animal getChild(Animal parent2) {
@@ -139,7 +150,7 @@ public class Animal extends AbstractMapEntity {
             }
             genes.set(chosenGeneIndex, random.nextInt(9));
         }
-        return new Animal(configuration, this.getPosition(), genes);
+        return new Animal(configuration, engine, this.getPosition(), genes);
     }
 
     private void init() {
@@ -174,5 +185,13 @@ public class Animal extends AbstractMapEntity {
 
     public boolean isReadyForReproduction() {
         return readyForReproduction;
+    }
+
+    public void setDayOfDeath(int dayOfDeath) {
+        this.dayOfDeath = dayOfDeath;
+    }
+
+    public int getDayOfDeath() {
+        return dayOfDeath;
     }
 }

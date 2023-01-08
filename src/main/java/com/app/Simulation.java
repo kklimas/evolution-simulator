@@ -3,6 +3,7 @@ package com.app;
 import com.app.configurations.CustomConfiguration;
 import com.app.dtos.DrawDTO;
 import com.app.entities.Animal;
+import com.app.enums.variants.MapVariant;
 import com.app.models.CSVRecord;
 import com.app.utils.Engine;
 import javafx.application.Platform;
@@ -11,9 +12,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
@@ -36,7 +34,7 @@ public class Simulation implements Runnable {
 
     private GridPane layout;
     private HBox map;
-    private HBox charts;
+    private VBox details;
     private VBox info;
     private HBox buttons;
     private Button runBtn;
@@ -73,12 +71,12 @@ public class Simulation implements Runnable {
         map.setAlignment(Pos.CENTER);
 
         info = new VBox();
-        info.setAlignment(Pos.CENTER);
+        info.setAlignment(Pos.TOP_CENTER);
         info.setSpacing(24);
 
-        charts = new HBox();
-        charts.setAlignment(Pos.TOP_CENTER);
-        charts.setSpacing(24);
+        details = new VBox();
+        details.setAlignment(Pos.CENTER);
+        details.setSpacing(24);
 
         buttons = new HBox();
         buttons.setAlignment(Pos.CENTER);
@@ -96,7 +94,7 @@ public class Simulation implements Runnable {
         row2.setPrefHeight(CHARTS_HEIGHT);
         layout.getRowConstraints().addAll(row1, row2);
         layout.add(map, 0, 0);
-        layout.add(charts, 0, 1);
+        layout.add(details, 0, 1);
         layout.add(info, 1, 0);
         layout.add(buttons, 1, 1);
 
@@ -108,8 +106,8 @@ public class Simulation implements Runnable {
     public void draw(DrawDTO drawDTO, boolean showDominant) {
         Platform.runLater(() -> {
             refreshMap(drawDTO, showDominant);
-            refreshInfo(drawDTO);
-            refreshCharts();
+            refreshGeneralInfo(drawDTO);
+            refreshDetails(drawDTO.selectedAnimal());
         });
     }
 
@@ -134,7 +132,11 @@ public class Simulation implements Runnable {
 
         map.getChildren().clear();
         var grid = new GridPane();
-        grid.setBorder(new Border(new BorderStroke(Color.BLACK,
+        var borderColor = configuration.mapVariant() == MapVariant.GLOBE
+                ? Color.BLACK
+                : Color.RED;
+
+        grid.setBorder(new Border(new BorderStroke(borderColor,
                 BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
         var rowConstr = new RowConstraints(tileSize);
@@ -155,18 +157,18 @@ public class Simulation implements Runnable {
                 var shape = entity.getShape();
                 if (animalGenotype.equals(data.dominantGenotype()) && showDominant) {
                     shape.setFill(Color.YELLOW);
+                } else if (entity.equals(data.selectedAnimal())) {
+                    shape.setFill(Color.BLUE);
                 }
                 grid.add(shape, entity.getPosition().getX(), entity.getPosition().getY());
             } else {
                 grid.add(entity.getShape(), entity.getPosition().getX(), entity.getPosition().getY());
             }
         });
-        grid.getChildren().forEach(item -> item.setOnMouseClicked(System.out::println));
-
         map.getChildren().add(grid);
     }
 
-    private void refreshInfo(DrawDTO drawDTO) {
+    private void refreshGeneralInfo(DrawDTO drawDTO) {
         info.getChildren().clear();
 
         var currentDay = "Current day:%n %d".formatted(drawDTO.currentDay());
@@ -188,40 +190,41 @@ public class Simulation implements Runnable {
                 deadAnimals,
                 mostFamousGenotype
         );
+        var header = new Label("General information");
+        header.setStyle("-fx-font: 24 arial;");
+        header.setTextAlignment(TextAlignment.CENTER);
+        info.getChildren().add(header);
         info.getChildren().addAll(getInfoLabels(messages));
 
     }
 
-    private void refreshCharts() {
-//        charts.getChildren().removeAll();
-//        //defining the axes
-//        var xAxis = new NumberAxis();
-//        var yAxis = new NumberAxis();
-//        xAxis.setLabel("Number of Month");
-//        //creating the chart
-//        var lineChart = new LineChart<>(xAxis,yAxis);
-//
-//        lineChart.setTitle("Stock Monitoring, 2010");
-//        //defining a series
-//        var series = new XYChart.Series();
-//        series.setName("My portfolio");
-//        //populating the series with data
-//        series.getData().add(new XYChart.Data(1, 23));
-//        series.getData().add(new XYChart.Data(2, 14));
-//        series.getData().add(new XYChart.Data(3, 15));
-//        series.getData().add(new XYChart.Data(4, 24));
-//        series.getData().add(new XYChart.Data(5, 34));
-//        series.getData().add(new XYChart.Data(6, 36));
-//        series.getData().add(new XYChart.Data(7, 22));
-//        series.getData().add(new XYChart.Data(8, 45));
-//        series.getData().add(new XYChart.Data(9, 43));
-//        series.getData().add(new XYChart.Data(10, 17));
-//        series.getData().add(new XYChart.Data(11, 29));
-//        series.getData().add(new XYChart.Data(12, 25));
-//
-//        lineChart.getData().add(series);
-//
-//        charts.getChildren().add(lineChart);
+    private void refreshDetails(Animal animal) {
+        details.getChildren().clear();
+        var header = new Label("Animal details");
+        header.setStyle("-fx-font: 24 arial;");
+        header.setTextAlignment(TextAlignment.CENTER);
+        details.getChildren().add(header);
+        if (animal == null) {
+            var noSelectedLabel = new Label("No animal was selected yet. To do so, stop simulation and choose one.");
+            details.getChildren().add(noSelectedLabel);
+        } else {
+            var data = new HBox();
+            data.setAlignment(Pos.CENTER);
+            data.setSpacing(16);
+            var age = "Age: %d".formatted(animal.getDaysLiving() + 1);
+            var energy = "Current energy: %d".formatted(animal.getCurrentEnergy());
+            var children = "Children: %d".formatted(animal.getChildrenNumber());
+            var currentGene = "Genotype: %s".formatted(animal.getGenotype().toString());
+            String dayOfDeath = "";
+            if (animal.getDayOfDeath() != -1) {
+                dayOfDeath = "Died at %d-th day".formatted(animal.getDayOfDeath());
+            }
+            var messages = List.of(age, energy, children, currentGene, dayOfDeath);
+
+            data.getChildren().addAll(getInfoLabels(messages));
+            details.getChildren().add(data);
+        }
+
     }
 
     private List<Label> getInfoLabels(List<String> messages) {
