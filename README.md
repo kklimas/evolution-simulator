@@ -3,7 +3,7 @@
 ## About
 Evolution simulator is an application that was made as a project for second's year subject: Objective Programming.
 All the requirements for this app are placed in another 
-[Github](https://github.com/apohllo/obiektowe-lab/tree/master/proj1) repository (PL).
+[GitHub](https://github.com/apohllo/obiektowe-lab/tree/master/proj1) repository (PL).
 
 ## Main concept
 The general feature of the application is the thing that the user can simulate the process of evolution. Only
@@ -45,6 +45,9 @@ Each of parameter should be specified and what is more:
     - variants should have value 0 or 1
     - energy needed to reproduction should be greater than energy wasted 
       during it
+
+There is also possibility to change the speed of the simulation. Only thing you need to do is to increase or decrease
+default `DELAY` parameter that is stored in `/configurations/DefaultConfiguration`
 
 ## Map data
 During simulation, it is shown a panel that presents current parameters of map (day, animals number,

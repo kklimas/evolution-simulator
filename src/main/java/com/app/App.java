@@ -83,7 +83,7 @@ public class App extends Application {
 
         Label label = new Label("Set up configuration, then start program");
 
-        var checkBox = new CheckBox("Generate CSV file (file will be generated in /resources/csv directory)");
+        var checkBox = new CheckBox("Generate CSV file");
         checkBox.setOnAction(event -> generateCSV = checkBox.isSelected());
 
         runBtn = new Button("Run");
