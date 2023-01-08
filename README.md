@@ -46,8 +46,8 @@ Each of parameter should be specified and what is more:
     - energy needed to reproduction should be greater than energy wasted 
       during it
 
-## Live map data
-During simulation, it is shown a panel that presents current parameters of map (day, animals number
+## Map data
+During simulation, it is shown a panel that presents current parameters of map (day, animals number,
 plants number, etc.)
 
 There is also possibility to look at information about selected animal. To do so simply stop simulation
@@ -56,3 +56,5 @@ and select animal you want to observe.
 ## CSV handling
 Application let us storing simulation data in CSV files. However, before you will get your files, 
 you need to select this option in main menu (before starting).
+
+Files are stored in `/main/resources/csv` and are always deleted before application start.
