@@ -61,3 +61,9 @@ Application let us storing simulation data in CSV files. However, before you wil
 you need to select this option in main menu (before starting).
 
 Files are stored in `/main/resources/csv` and are always deleted before application start.
+
+## Sample views
+
+<img src="./ss/start.png" width="500">
+<img src="./ss/in1.png" width="700">
+<img src="./ss/in2.png" width="700">
